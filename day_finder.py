@@ -99,7 +99,7 @@ def get_current_day():
     
     # if we're still in the loop, there must not be a DAY 1 or DAY 2
     # it must be the weekend
-    return "weekend"
+    return "No School Day"
 
 
 # Main scope
