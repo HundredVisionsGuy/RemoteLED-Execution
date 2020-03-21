@@ -6,38 +6,9 @@
 import requests, icalendar
 from ics import Calendar
 from datetime import date
-
+import datetime
+import Schedule as s
 # Create a CHS Schedule Object
-class Schedule:
-  monday_schedule = {
-    1: {"start":"8:30", "end":"10:02"},
-    2: {"start":"10:08", "end":"11:40"},
-    "Lunch": {"start":"11:40", "end":"12:20"},
-    3: {"start":"12:24", "end":"13:52"},
-    4: {"start":"13:58", "end":"15:30"}}
-  tuesday_schedule = monday_schedule
-  thursday_schedule = monday_schedule
-  wednesday_schedule = {
-    1: {"start":"9:00", "end":"10:25"},
-    2: {"start":"10:31", "end":"11:56"},
-    "Lunch":  {"start":"11:56", "end":"12:28"},
-    3: {"start":"12:34", "end":"13:59"},
-    4: {"start":"14:05", "end":"15:30"}}
-  friday_schedule = {
-    1: {"start": "8:30", "end":"9:58"},
-    2: {"start":"9:59", "end":"11:22"},
-    "Access": {"start":"11:28", "end":"11:58"},
-    "Lunch": {"start":"11:58", "end":"12:32"},
-    3: {"start": "12:38", "end":"14:01"},
-    4: {"start": "14:07", "end":"15:30"}}
-  weekly_schedule = {
-    "Monday": monday_schedule,
-    "Tuesday": tuesday_schedule,
-    "Wednesday": wednesday_schedule,
-    "Thursday": thursday_schedule,
-    "Friday": friday_schedule
-  }
-  
 
 # get today's date
 today = date.today()
@@ -108,6 +79,7 @@ if __name__ == "__main__":
     # summaries = []
     # summaries = get_daily_summaries()
     # print(summaries)
-    schedule = Schedule()
+    schedule = s.Schedule()
     print(schedule.monday_schedule[1]["start"])
+    print(schedule.get_todays_schedule())
     input("\nPress enter to quit.")
