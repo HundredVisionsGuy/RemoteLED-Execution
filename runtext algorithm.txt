@@ -1,0 +1,21 @@
+// runtext.py Algorithm
+SET is_new_day to False
+GET the Schedule for the day
+GET announcements for the day
+WHILE True
+  GET the hour
+  GET the minute 
+  # If it's the first two minutes at midnight
+  IF hour < 1
+    IF minute <= 2
+      SET is_new_day to True
+    IF is_new_day == True
+      GET today's schedule
+      SET todays_schedule to schedule
+      SET is_new_day to False
+  ENDIF
+  # Get the class at every 5 minute increment
+  IF minute % 5 == 0
+    
+  ENDIF 
+ENDWHILE

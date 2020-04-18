@@ -84,5 +84,10 @@ if __name__ == "__main__":
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
     c_class = schedule.get_class(period)
+    print("Today is a {}".format(day_one_or_two))
     print("The current class is {}".format(c_class))
+    input("Press enter to get today's announcements.")
+    announcements = get_daily_summaries()
+    # for a in announcements:
+    #     print(a)
     input("\nPress enter to quit.")
