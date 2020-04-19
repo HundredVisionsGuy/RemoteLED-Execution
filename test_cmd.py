@@ -12,6 +12,11 @@ import signal
 proc1 = subprocess.Popen(args=["sudo", "python", 
 "image_scroller.py", "--led-cols", "64", 
 "--led-rows", "32", "-b", "20", "-i", "you_got_this.png"])
+# Get the process id
+pid = proc1.pid
 
+
+if not p.poll():
+    print "Process correctly halted"
 time.sleep(20)
-proc1.send_signal(signal.SIGINT, signal.CTRL_C_EVENT)
+os.kill(pid, signal.SIGINT)
