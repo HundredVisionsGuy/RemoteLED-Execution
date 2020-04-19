@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import time
+import datetime
 from samplebase import SampleBase
 from PIL import Image
 
