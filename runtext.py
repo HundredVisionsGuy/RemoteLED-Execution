@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # Display a runtext with double-buffering.
-from ./samplebase import SampleBase
-from ./rgbmatrix import graphics
+from samplebase import SampleBase
+from rgbmatrix import graphics
 import time
-import day_finder
+
 
 class RunText(SampleBase):
     def __init__(self, *args, **kwargs):
@@ -16,8 +16,8 @@ class RunText(SampleBase):
         font.LoadFont("../../../fonts/helvR12.bdf")
         textColor = graphics.Color(255, 255, 0)
         pos = offscreen_canvas.width
-        #my_text = self.args.text
-	my_text = "Today is a " + day_finder.isDayOneOrTwo()
+        my_text = self.args.text
+
         while True:
             offscreen_canvas.Clear()
             len = graphics.DrawText(offscreen_canvas, font, pos, 12, textColor, my_text)
