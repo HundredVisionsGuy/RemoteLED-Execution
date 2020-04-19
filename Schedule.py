@@ -100,25 +100,29 @@ if __name__ == "__main__":
   print("Today's schedule is {}".format(s.get_schedule(today)))
   print("Running get_todays_schedule results in {}".format(s.get_todays_schedule()))
   todays_schedule = s.get_schedule(today)
-  print("\nLet's loop through today's schedule, which is type:{}".format(type(todays_schedule)))
-  for i in todays_schedule:
-    print("From {} to {}.".format(
-      todays_schedule[i]['start'], todays_schedule[i]['end']))
-  # Test times
-  # mon = s.get_schedule("Monday")
-  # mon_1 = mon[1]
-  # mon_1_start = mon_1["start"]
-  # mon_1_end = mon_1["end"]
+  # print("\nLet's loop through today's schedule, which is type:{}".format(type(todays_schedule)))
+  # for i in todays_schedule:
+  #   print("From {} to {}.".format(
+  #     todays_schedule[i]['start'], todays_schedule[i]['end']))
+  # # Test times
+  # # mon = s.get_schedule("Monday")
+  # # mon_1 = mon[1]
+  # # mon_1_start = mon_1["start"]
+  # # mon_1_end = mon_1["end"]
 
-  # print("1st period starts at {} and ends at {}".format(mon_1_start, mon_1_end))
-  # print("1st period start is less than 1st period end == {}".format(mon_1_end>mon_1_start))
+  # # print("1st period starts at {} and ends at {}".format(mon_1_start, mon_1_end))
+  # # print("1st period start is less than 1st period end == {}".format(mon_1_end>mon_1_start))
   
   today = s.get_today()
   schedule = s.get_schedule(today)
   now = datetime.datetime.now()
   # print("now[:2] = {}".format(now[:2]))
-  print("today is {}, schedule is \n{}\nnow is {}".format(
-    today, schedule, now))
-  c_class = s.get_current_period(today, schedule, now)
-  print ("The current class is {}.".format(c_class))
+  # print("today is {}, schedule is \n{}\nnow is {}".format(
+  #   today, schedule, now))
+  # c_class = s.get_current_period(today, schedule, now)
+  # print ("The current class is {}.".format(c_class))
+  hour = now.strftime("%H")
+  minute = now.strftime("%M")
+  print("The hour is: {}\tThe minute is: {}".format(hour, minute))
+  print("The data type for minute is {}".format(type(minute)))
   input("Press enter to quit")

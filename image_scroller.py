@@ -17,18 +17,33 @@ class ImageScroller(SampleBase):
         double_buffer = self.matrix.CreateFrameCanvas()
         img_width, img_height = self.image.size
 
+        # Get minute - to base image on time
+        now = datetime.datetime.now()
+        minute = now.strftime("%M")
+        last_minute = minute
         # let's scroll
         xpos = 0
         while True:
+            # get current minute
+            minute = now.strftime("%M")
             xpos += 1
             if (xpos > img_width):
                 xpos = 0
+                # check if a minute has passed
+                # if so, it's time to switch images
+                if minute > last_minute or minute == "0":
+                    # we can switch picture
+                    if int(minute) % 2 == 0:
+                        self.image = "you_got_this.png"
+                    else:
+                        self.image = "LEDWelcomeFamily.png"
 
             double_buffer.SetImage(self.image, -xpos)
             double_buffer.SetImage(self.image, -xpos + img_width)
 
             double_buffer = self.matrix.SwapOnVSync(double_buffer)
             time.sleep(0.01)
+            last_minute = minute
 
 # Main function
 # e.g. call with
