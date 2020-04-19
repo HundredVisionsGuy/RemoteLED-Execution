@@ -9,9 +9,9 @@ import signal
 #")
 
 # Try creating a subprocess call
-proc1 = subprocess.Popen(args=["sudo", 
-"./image-scroller.py", "--led-cols", 64, 
-"--led-rows", 32, "-b", 20, "-i", "you_got_this.png"])
+proc1 = subprocess.Popen(args=["sudo", "python", 
+"image_scroller.py", "--led-cols", "64", 
+"--led-rows", "32", "-b", "20", "-i", "you_got_this.png"])
 
 time.sleep(20)
 proc1.send_signal(signal.SIGINT)
