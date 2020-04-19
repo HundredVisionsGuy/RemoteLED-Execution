@@ -15,10 +15,10 @@ proc1 = subprocess.Popen(args=["sudo", "python",
 # Get the process id
 pid = proc1.pid
 
-time.sleep(20)
+time.sleep(10)
 
-os.kill(pid, signal.SIGINT)
+proc1.send_signal(signal.SIGINT)
 if not proc1.poll():
     print("Process correctly halted")
-
+stdout, stderr = proc1.communicate()
 time.sleep(3)
