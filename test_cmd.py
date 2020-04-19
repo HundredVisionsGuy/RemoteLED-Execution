@@ -14,4 +14,4 @@ proc1 = subprocess.Popen(args=["sudo", "python",
 "--led-rows", "32", "-b", "20", "-i", "you_got_this.png"])
 
 time.sleep(20)
-proc1.send_signal(signal.SIGINT)
+proc1.send_signal(signal.SIGINT, signal.CTRL_C_EVENT)
