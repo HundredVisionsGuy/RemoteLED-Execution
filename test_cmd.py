@@ -20,5 +20,5 @@ time.sleep(10)
 proc1.send_signal(signal.SIGINT)
 if not proc1.poll():
     print("Process correctly halted")
-stdout, stderr = proc1.communicate()
-time.sleep(3)
+proc1.terminate()
+proc1.wait(5)
