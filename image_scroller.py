@@ -34,9 +34,10 @@ class ImageScroller(SampleBase):
                 if minute > last_minute or minute == "0":
                     # we can switch picture
                     if int(minute) % 2 == 0:
-                        self.image = "you_got_this.png"
+                        self.image = Image.open("you_got_this.png").convert('RGB')
                     else:
-                        self.image = "LEDWelcomeFamily.png"
+                        self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
+                    self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
 
             double_buffer.SetImage(self.image, -xpos)
             double_buffer.SetImage(self.image, -xpos + img_width)
