@@ -21,4 +21,7 @@ proc1.send_signal(signal.SIGINT)
 if not proc1.poll():
     print("Process correctly halted")
 proc1.terminate()
-proc1.wait(5)
+try:
+  proc1.wait(5)
+except TimeoutExpired:
+  

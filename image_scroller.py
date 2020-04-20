@@ -34,6 +34,7 @@ class ImageScroller(SampleBase):
                 # if so, it's time to switch images
                 if minute > last_minute or minute == "0":
                     # we can switch picture
+                    print("Minute is {} and last minute was {}".format(minute, last_minute))
                     if int(minute) % 2 == 0:
                         self.image = Image.open("you_got_this.png").convert('RGB')
                     else:
