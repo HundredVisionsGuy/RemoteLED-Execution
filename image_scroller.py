@@ -37,9 +37,17 @@ class ImageScroller(SampleBase):
                     print("Minute is {} and last minute was {}".format(minute, last_minute))
                     if int(minute) % 2 == 0:
                         self.image = Image.open("you_got_this.png").convert('RGB')
+                        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+
+                        double_buffer = self.matrix.CreateFrameCanvas()
+                        img_width, img_height = self.image.size
                     else:
                         self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
-                    self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+                        
+                        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+
+                    double_buffer = self.matrix.CreateFrameCanvas()
+                    img_width, img_height = self.image.size
 
             double_buffer.SetImage(self.image, -xpos)
             double_buffer.SetImage(self.image, -xpos + img_width)
