@@ -24,6 +24,7 @@ class ImageScroller(SampleBase):
         last_minute = minute
         # let's scroll
         xpos = 0
+        switched = False
         while True:
             # get current minute
             minute = now.strftime("%M")
@@ -32,22 +33,23 @@ class ImageScroller(SampleBase):
                 xpos = 0
                 # check if a minute has passed
                 # if so, it's time to switch images
-                if minute > last_minute or minute == "0":
+                if switched:
                     # we can switch picture
-                    print("Minute is {} and last minute was {}".format(minute, last_minute))
-                    if int(minute) % 2 == 0:
-                        self.image = Image.open("you_got_this.png").convert('RGB')
-                        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
-
-                        double_buffer = self.matrix.CreateFrameCanvas()
-                        img_width, img_height = self.image.size
-                    else:
-                        self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
-                        
-                        self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
-
+                    #print("Minute is {} and last minute was {}".format(minute, last_minute))
+                    #if int(minute) % 2 == 0:
+                    self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
+                    self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
                     double_buffer = self.matrix.CreateFrameCanvas()
-                    img_width, img_height = self.image.size
+                else:
+                        #double_buffer = self.matrix.CreateFrameCanvas()
+                        #img_width, img_height = self.image.size
+                    #else:
+                    self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
+                    self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
+                    double_buffer = self.matrix.CreateFrameCanvas()
+                switched = not switched
+                #double_buffer = self.matrix.CreateFrameCanvas()
+                #img_width, img_height = self.image.size
 
             double_buffer.SetImage(self.image, -xpos)
             double_buffer.SetImage(self.image, -xpos + img_width)
