@@ -40,6 +40,7 @@ class ImageScroller(SampleBase):
                     self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
                     self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
                     double_buffer = self.matrix.CreateFrameCanvas()
+                    img_width, img_height = self.image.size
                 else:
                         #double_buffer = self.matrix.CreateFrameCanvas()
                         #img_width, img_height = self.image.size
@@ -47,6 +48,7 @@ class ImageScroller(SampleBase):
                     self.image = Image.open("LEDWelcomeFamily.png").convert('RGB')
                     self.image.resize((self.matrix.width, self.matrix.height), Image.ANTIALIAS)
                     double_buffer = self.matrix.CreateFrameCanvas()
+                    img_width, img_height = self.image.size
                 switched = not switched
                 #double_buffer = self.matrix.CreateFrameCanvas()
                 #img_width, img_height = self.image.size
