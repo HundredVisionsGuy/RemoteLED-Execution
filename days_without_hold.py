@@ -42,8 +42,10 @@ class RunText(SampleBase):
         start_day = start_date.strftime("%a")
         current_day = start_day
         
+        
         # is it a school day?
         school_day = is_school_day()
+        school_day_ended = False
 
         if without_hold == 0:
             if school_day and start_date.hour <= 15 and start_date.minute < 30:
@@ -62,6 +64,7 @@ class RunText(SampleBase):
             current_hour = start_date.hour
             current_minute = start_date.minute
             print(my_text)
+            school_day_ended = False
             if current_hour < 15 and current_minute < 30:
                 school_day_ended = False
                 print("School day is NOT over...yet.")
@@ -100,6 +103,7 @@ class RunText(SampleBase):
                 date_today = today.strftime("%Y-%m-%d")
                 last_school_day = school_day
                 school_day = is_school_day()
+                print(school_day)
 
                 # account for errors
                 if "Error" in school_day:
@@ -146,8 +150,8 @@ def is_school_day() -> str:
     date = datetime.now() + timedelta(days=0)
     datefor = "%s" % date.strftime("%Y-%m-%d")
     events = []
-    path_to_ics_file = "https://www.hsd.k12.or.us"
-    path_to_ics_file += "/site/handlers/icalfeed.ashx?MIID=37"
+    path_to_ics_file = "https://www.hsd.k12.or.us/fs/calendar-manager/"
+    path_to_ics_file += "events.ics?calendar_ids=6"
 
     # set start and stop time
     dtend = False
@@ -158,27 +162,29 @@ def is_school_day() -> str:
         r = re.get(path_to_ics_file)
         gcal = Calendar.from_ical(r.text)
         for event in gcal.walk("VEVENT"):
-            if "DTSART" in event:
+            if "DTSTART" in event:
                 try:
-                    dtstart = event["DTSTART"].dt.astimezone(TZ)
+                    dtstart = event["DTSTART"].dt
                 except Exception:
                     dtstart = False
             if "DTEND" in event:
                 try:
-                    dtend = event["DTEND"].dt.astimezone(TZ)
+                    dtend = event["DTEND"].dt
                 except Exception:
                     dtend = False
             if dtstart or dtend:
                 if datefor in "%s" % dtstart or datefor in "%s" % dtend:
                     # it's today, let's add the stuff
-                    summary = str(event["summary"])
-                    print(summary)
-                    if "A DAY" in summary.upper() or "B DAY" in summary.upper():
+                    summary = str(event["SUMMARY"])
+                    day = str(event['DTSTART'].dt.day)
+                    same_day = day in datefor[-3:]
+                    if same_day and "A DAY" in summary.upper() or same_day and "B DAY" in summary.upper():
                         print("We have a school day")
                         is_school_day = summary.upper()
                         return is_school_day
     except Exception as ex:
         return f"Error {ex}"
+    
     return is_school_day
 
 
