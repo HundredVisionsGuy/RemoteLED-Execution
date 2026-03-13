@@ -3,41 +3,13 @@
 # a Python script to determine whether it's a day 1, 2, or weekend
 
 # import statements
-import requests, icalendar
+import requests
+import icalendar
 from ics import Calendar
 from datetime import date
-
+from datetime import datetime
+import Schedule as s
 # Create a CHS Schedule Object
-class Schedule:
-  monday_schedule = {
-    1: {"start":"8:30", "end":"10:02"},
-    2: {"start":"10:08", "end":"11:40"},
-    "Lunch": {"start":"11:40", "end":"12:20"},
-    3: {"start":"12:24", "end":"13:52"},
-    4: {"start":"13:58", "end":"15:30"}}
-  tuesday_schedule = monday_schedule
-  thursday_schedule = monday_schedule
-  wednesday_schedule = {
-    1: {"start":"9:00", "end":"10:25"},
-    2: {"start":"10:31", "end":"11:56"},
-    "Lunch":  {"start":"11:56", "end":"12:28"},
-    3: {"start":"12:34", "end":"13:59"},
-    4: {"start":"14:05", "end":"15:30"}}
-  friday_schedule = {
-    1: {"start": "8:30", "end":"9:58"},
-    2: {"start":"9:59", "end":"11:22"},
-    "Access": {"start":"11:28", "end":"11:58"},
-    "Lunch": {"start":"11:58", "end":"12:32"},
-    3: {"start": "12:38", "end":"14:01"},
-    4: {"start": "14:07", "end":"15:30"}}
-  weekly_schedule = {
-    "Monday": monday_schedule,
-    "Tuesday": tuesday_schedule,
-    "Wednesday": wednesday_schedule,
-    "Thursday": thursday_schedule,
-    "Friday": friday_schedule
-  }
-  
 
 # get today's date
 today = date.today()
@@ -52,6 +24,7 @@ def isDayOneOrTwo():
 
     # type(calendar)
     print("Today is a " + day)
+
 def get_daily_summaries():
     url = "https://www.hsd.k12.or.us/site/handlers/icalfeed.ashx?MIID=37"
     res = requests.get(url)
@@ -88,7 +61,7 @@ def get_current_day():
     today = date.today()
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
-        input(summary)
+        # input(summary)
         e_month = event['DTSTART'].dt.month
         e_day = event['DTSTART'].dt.day
         c_month = today.month
@@ -101,13 +74,20 @@ def get_current_day():
     # it must be the weekend
     return "No School Day"
 
-
 # Main scope
 if __name__ == "__main__":
-    # isDayOneOrTwo()
-    # summaries = []
-    # summaries = get_daily_summaries()
-    # print(summaries)
-    schedule = Schedule()
-    print(schedule.monday_schedule[1]["start"])
+    
+    schedule = s.Schedule()
+    # Get the current time
+    now = datetime.now()
+    day_one_or_two = get_current_day()
+    day_of_week = schedule.get_today()
+    period = schedule.get_current_period(day_of_week, now, day_one_or_two)
+    c_class = schedule.get_class(period)
+    print("Today is a {}".format(day_one_or_two))
+    print("The current class is {}".format(c_class))
+    input("Press enter to get today's announcements.")
+    announcements = get_daily_summaries()
+    # for a in announcements:
+    #     print(a)
     input("\nPress enter to quit.")
