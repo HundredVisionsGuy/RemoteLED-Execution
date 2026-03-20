@@ -1,0 +1,28 @@
+Algorithm for checking for A or B day.
+GET datetime for today
+GET current_year from datetime
+TRY
+    READ calendar
+EXCEPT File not found
+    CALL get_calendar() with current_year
+
+
+DEFINE get_calendar()
+    GET calendar
+    SET same_year to False
+    SET calendar_list to empty list
+    FOR EACH line in calendar
+        IF same_year
+            APPEND line to calendar_list
+        ELSE IF "DTSTART" in line
+            GET datetime
+            IF datetime.year < current_year
+                CONTINUE
+            ELSE:
+                SET same_year to True
+            END IF
+        END IF
+    END FOR
+    WRITE calendar_list to calendar
+END DEFINITION
+
