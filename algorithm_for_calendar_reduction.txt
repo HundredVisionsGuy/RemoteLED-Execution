@@ -26,3 +26,27 @@ DEFINE get_calendar()
     WRITE calendar_list to calendar
 END DEFINITION
 
+DEFINE get_day(calendar)
+    GET today
+    GET current_day
+    IF current_day == Saturday or Sunday
+        RETURN "weekend"
+    FOR EACH event in calendar
+        GET summary
+        IF "A day" in summary or "B day" in summary
+            GET start_date
+            IF start_date == today
+                RETURN summary
+            ELSE IF "FREQ=DAILY" in RRULE
+                GET until_date
+                GET interval (should be 2)
+                IF today > start_date and today <= until_date
+                    SET days_since to today - start_date
+                    IF days_since MOD interval == 0
+                        RETURN summary
+                    ENDIF
+                ENDIF
+            ENDIF
+        ENDIF
+    ENDFOR
+                
