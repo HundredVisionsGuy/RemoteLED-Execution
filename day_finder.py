@@ -5,7 +5,7 @@
 # import statements
 import requests
 import icalendar
-from ics import Calendar
+from icalendar import Calendar, Event
 from datetime import date
 from datetime import datetime
 import Schedule as s
@@ -54,7 +54,7 @@ def is_weekday(current_day):
     return date.weekday(current_day) < 5
 
 def get_current_day():
-    url = "https://www.hsd.k12.or.us/site/handlers/icalfeed.ashx?MIID=37"
+    url = "https://www.hsd.k12.or.us/fs/calendar-manager/events.ics?calendar_ids=6"
     res = requests.get(url)
     calendar = icalendar.Calendar.from_ical(res.text)
     output = []
@@ -74,12 +74,39 @@ def get_current_day():
     # it must be the weekend
     return "No School Day"
 
+
+def get_current_calendar(now: datetime) -> icalendar:
+    """returns a calendar for just the current school year"""
+    school_year = get_school_year(now)
+    
+    # Create a calendar for the current year
+    current_cal = Calendar()
+
+    # required data
+    current_cal.add('prodid', '-//Current_yea Calendar//')
+    current_cal.add('version', '0.1')
+
+    current_cal.add('x-school-year', school_year)
+    return current_cal
+
+
+def get_school_year(now):
+    cur_month = now.month
+    cur_year = now.year
+    if cur_month < 8:
+        school_year = f"{cur_year-1}-{cur_year}"
+    else:
+        school_year = f"{cur_year}-{cur_year+1}"
+    return school_year
+
+
 # Main scope
 if __name__ == "__main__":
     
     schedule = s.Schedule()
     # Get the current time
     now = datetime.now()
+    current_year_cal = get_current_calendar(now)
     day_one_or_two = get_current_day()
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)

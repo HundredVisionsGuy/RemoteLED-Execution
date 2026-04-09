@@ -25,3 +25,16 @@ def test_is_weekday_for_false():
 
 def test_get_period_one():
   expected = 1
+
+school_year_test_data = (
+  ((2026, 4, 9), "2025-2026"),
+  ((2025, 11, 18), "2025-2026"),
+  ((2025, 7, 11), "2024-2025")
+)
+@pytest.mark.parametrize("current,expected", school_year_test_data)
+def test_get_school_year_for_current_school_year(current, expected):
+    day, month, year = current
+    current_date = datetime.datetime(day, month, year)
+    actual = day_finder.get_school_year(current_date)
+    assert actual == expected
+  
