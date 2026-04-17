@@ -8,6 +8,7 @@ import icalendar
 from icalendar import Calendar, Event
 from datetime import date
 from datetime import datetime
+import os
 import Schedule as s
 # Create a CHS Schedule Object
 
@@ -26,9 +27,7 @@ def isDayOneOrTwo():
     print("Today is a " + day)
 
 def get_daily_summaries():
-    url = "https://www.hsd.k12.or.us/site/handlers/icalfeed.ashx?MIID=37"
-    res = requests.get(url)
-    calendar = icalendar.Calendar.from_ical(res.text)
+    calendar = get_calendar()
     output = []
     today = date.today()
     c_month = today.month
@@ -45,9 +44,16 @@ def get_daily_summaries():
         
     return output
 
+def get_calendar():
+    url = "https://www.hsd.k12.or.us/fs/calendar-manager/events.ics?calendar_ids=6"
+    res = requests.get(url)
+    calendar = icalendar.Calendar.from_ical(res.text)
+    return calendar
+
 def clean_summary(text):
-    output = text.decode('utf-8')
-    return output
+    if isinstance(text, bytes):
+        return text.decode('utf-8')
+    return text
 
 def is_weekday(current_day):
     """ receives a current_day object -> bool """
@@ -80,19 +86,50 @@ def get_current_calendar(now: datetime) -> icalendar:
     school_year = get_school_year(now)
 
     # Try and open current_calendar file (if it exists)
-    
-    # If file doesn't exist pull the online calendar
+    try:
+        with open('current_calendar.ics', 'r') as cal:
+            current_cal = Calendar(cal.read())
 
-    # Check to make sure the calendar is current
+            # Check to make sure the calendar is current
+
+            # If not, pull the calendar again
+
+    except FileNotFoundError:
+        # pull the online calendar
+        current_cal = get_calendar()
+
+        # add required data
+        current_cal.add('prodid', '-//Current_year Calendar//')
+        current_cal.add('version', '0.1')
+
+        current_cal.add('x-school-year', school_year)
+        
+        # clean calendar of old years
+        start_year, end_year = school_year.split("-")
+
+        # create a new calendar
+        for event in current_cal.walk('vevent'):
+            # get year and month
+            # add only events that are within this school year (August to July)
+            e_year = event['DTSTART'].dt.year
+            e_month = event['DTSTART'].dt.month
+            if e_year < start_year or e_year > end_year:
+                continue
+            elif e_year == start_year and e_month < 8:
+                continue
+            elif
+        # save calendar
+
+
+    
+    
+
+    
     
     # Create a calendar for the current year
     current_cal = Calendar()
 
-    # required data
-    current_cal.add('prodid', '-//Current_year Calendar//')
-    current_cal.add('version', '0.1')
-
-    current_cal.add('x-school-year', school_year)
+    
     return current_cal
 
 
