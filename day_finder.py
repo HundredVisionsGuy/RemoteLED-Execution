@@ -117,7 +117,9 @@ def get_current_calendar(now: datetime) -> icalendar:
                 continue
             elif e_year == start_year and e_month < 8:
                 continue
-            elif
+            elif e_year == end_year and e_month > 7:
+                continue
+            print("We stopped here.")
         # save calendar
 
 
