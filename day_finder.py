@@ -6,9 +6,9 @@
 import requests
 import icalendar
 from icalendar import Calendar, Event
-from datetime import date
-from datetime import datetime
+from datetime import date, datetime, timezone
 import os
+import pytz
 import Schedule as s
 # Create a CHS Schedule Object
 
@@ -87,25 +87,41 @@ def get_current_calendar(now: datetime) -> icalendar:
 
     # Try and open current_calendar file (if it exists)
     try:
-        with open('current_calendar.ics', 'r') as cal:
-            current_cal = Calendar(cal.read())
+        with open('current_calendar.ics', 'r', encoding='utf-8') as cal:
+            calendar_text = cal.read()
 
+            # convert the text to a calendar
+            current_cal = Calendar.from_ical(calendar_text)
+            
             # Check to make sure the calendar is current
+            last_modified = get_last_modified(current_cal)
+            modified_month = last_modified[5:7]
+            modified_month = int(modified_month)
+            current_month = now.strftime("%m")
+            current_month = int(current_month)
 
-            # If not, pull the calendar again
+            # if the current month is past the modified month - get a new calendar
+            if current_month > modified_month:
+                # throwing the error forces us to make a new calendar
+                # this will only happen once a month
+                raise FileNotFoundError
+            
+            # Success! return the calendar
+            return current_cal
 
     except FileNotFoundError:
+        # create & config our adjusted calendar
+        adjusted_cal = Calendar()
+        adjusted_cal.add('prodid', '-//Current_year Calendar//')
+        adjusted_cal.add('prodid', '-//Current_year Calendar//')
+        adjusted_cal.add('version', '0.1')
+        adjusted_cal.add('x-school-year', school_year)
+
         # pull the online calendar
         current_cal = get_calendar()
-
-        # add required data
-        current_cal.add('prodid', '-//Current_year Calendar//')
-        current_cal.add('version', '0.1')
-
-        current_cal.add('x-school-year', school_year)
         
         # clean calendar of old years
-        start_year, end_year = school_year.split("-")
+        start_year, end_year = [int(x) for x in school_year.split("-")]
 
         # create a new calendar
         for event in current_cal.walk('vevent'):
@@ -119,20 +135,27 @@ def get_current_calendar(now: datetime) -> icalendar:
                 continue
             elif e_year == end_year and e_month > 7:
                 continue
-            print("We stopped here.")
+            adjusted_cal.add_component(event)
+        
         # save calendar
+        adjusted_events = adjusted_cal.events
+        try:
+            with open('current_calendar.ics', 'wb') as cal:
+                cal.write(adjusted_cal.to_ical())
+        except Exception as ex:
+            print(ex)
+        return adjusted_cal
 
-
-    
-    
-
-    
-    
-    # Create a calendar for the current year
-    current_cal = Calendar()
-
-    
-    return current_cal
+def get_last_modified(calendar: Calendar) -> str:
+    """get the last time the calendar was modified or set it and return it"""
+    last_modified = calendar.LAST_MODIFIED
+    if not last_modified:
+        # get now in UTC time
+        current_date = datetime.now(pytz.UTC)
+        calendar.LAST_MODIFIED = current_date
+        current_date = current_date.isoformat()
+        last_modified = current_date
+    return last_modified
 
 
 def get_school_year(now):
@@ -149,9 +172,15 @@ def get_school_year(now):
 if __name__ == "__main__":
     
     schedule = s.Schedule()
+    
     # Get the current time
     now = datetime.now()
     current_year_cal = get_current_calendar(now)
+
+    ###################################################################
+    # TODO: Modify get_current_day by passing it a current calendar
+    ###################################################################
+
     day_one_or_two = get_current_day()
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
