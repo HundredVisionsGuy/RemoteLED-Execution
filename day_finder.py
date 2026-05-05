@@ -59,11 +59,12 @@ def is_weekday(current_day):
     """ receives a current_day object -> bool """
     return date.weekday(current_day) < 5
 
-def get_current_day():
-    url = "https://www.hsd.k12.or.us/fs/calendar-manager/events.ics?calendar_ids=6"
-    res = requests.get(url)
-    calendar = icalendar.Calendar.from_ical(res.text)
+def get_current_day(calendar: Calendar) -> str:
     output = []
+
+    ##############################
+    # TODO: fix the A B conundrum
+    ##############################
     today = date.today()
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     # TODO: Modify get_current_day by passing it a current calendar
     ###################################################################
 
-    day_one_or_two = get_current_day()
+    day_one_or_two = get_current_day(current_year_cal)
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
     c_class = schedule.get_class(period)
