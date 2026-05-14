@@ -66,8 +66,22 @@ def get_current_day(calendar: Calendar) -> str:
     # TODO: fix the A B conundrum
     ##############################
     today = date.today()
+    a_or_b_day = {
+        "a_day": {
+            "start": (),
+            "stop": ()
+        },
+        "b_day": {
+            "start": (),
+            "stop": ()
+        },
+    }
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
+        if "a day" in summary.lower() or "b day" in summary.lower():
+            rules = event.rrules           
+            if rules:
+                print(rules)
         # input(summary)
         e_month = event['DTSTART'].dt.month
         e_day = event['DTSTART'].dt.day
