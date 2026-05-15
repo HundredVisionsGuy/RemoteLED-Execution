@@ -66,6 +66,9 @@ def get_current_day(calendar: Calendar) -> str:
     # TODO: fix the A B conundrum
     ##############################
     today = date.today()
+    current_day = today.day
+    current_month = today.month
+    current_year = today.year
     a_or_b_day = {
         "a_day": {
             "start": (),
@@ -78,22 +81,39 @@ def get_current_day(calendar: Calendar) -> str:
     }
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
+        start_date = event.DTSTART
+        start_year = start_date.year
+        s_month = start_date.month
+        s_day = start_date.day
+        if start_year != current_year and current_month != 12:
+            continue
         if "a day" in summary.lower() or "b day" in summary.lower():
             rules = event.rrules           
             if rules:
-                print(rules)
-        # input(summary)
-        e_month = event['DTSTART'].dt.month
-        e_day = event['DTSTART'].dt.day
-        c_month = today.month
-        c_day = today.day
-        if e_month == c_month and e_day == c_day:
-            if 'DAY' in summary:
-                return summary
+                rule = rules[0]
+                until = rule.get('UNTIL')[0]
+                u_month = until.month
+                u_day = until.day
+                if current_month <= u_month:
+                    print()
+            elif current_day == s_day and current_month == s_month:
+                if "a day" == summary.lower():
+                    return "an A Day"
+                if "b day" == summary.lower():
+                    return "a B Day"
+
+        # # input(summary)
+        # e_month = event['DTSTART'].dt.month
+        # e_day = event['DTSTART'].dt.day
+        # c_month = today.month
+        # c_day = today.day
+        # if e_month == c_month and e_day == c_day:
+        #     if 'DAY' in summary:
+        #         return summary
     
     # if we're still in the loop, there must not be a DAY 1 or DAY 2
     # it must be the weekend
-    return "No School Day"
+    # return "No School Day"
 
 
 def get_current_calendar(now: datetime) -> icalendar:
@@ -200,7 +220,7 @@ if __name__ == "__main__":
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
     c_class = schedule.get_class(period)
-    print("Today is a {}".format(day_one_or_two))
+    print("Today is {}".format(day_one_or_two))
     print("The current class is {}".format(c_class))
     input("Press enter to get today's announcements.")
     announcements = get_daily_summaries()
