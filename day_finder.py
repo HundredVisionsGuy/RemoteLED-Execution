@@ -94,13 +94,34 @@ def get_current_day(calendar: Calendar) -> str:
                 until = rule.get('UNTIL')[0]
                 u_month = until.month
                 u_day = until.day
+                
                 if current_month <= u_month:
-                    print()
+                    total_days = today - start_date
+                    in_range = is_in_range(current_day, current_month, s_month, s_day, u_month, u_day)
+                    if in_range:
+                        if total_days.days % 2 == 0:
+                            day = get_which_day(summary)
+                        else:
+                            if "a day" == summary.lower():
+                                return "A B day"
+                            else:
+                                return "An A day"
             elif current_day == s_day and current_month == s_month:
-                if "a day" == summary.lower():
-                    return "an A Day"
-                if "b day" == summary.lower():
-                    return "a B Day"
+                day = get_which_day(summary)
+                return day
+
+def is_in_range(current_day, current_month, s_month, s_day, u_month, u_day):
+    in_range = current_month == s_month and current_day >= s_day
+    in_range = in_range or current_month == u_month and current_day <= u_day
+    return in_range
+
+def get_which_day(summary):
+    day = ""
+    if "a day" == summary.lower():
+        day = "an A Day"
+    if "b day" == summary.lower():
+        day = "a B Day"
+    return day
 
         # # input(summary)
         # e_month = event['DTSTART'].dt.month
