@@ -5,9 +5,10 @@
 # import statements
 import requests
 import icalendar
-from ics import Calendar
-from datetime import date
-from datetime import datetime
+from icalendar import Calendar, Event
+from datetime import date, datetime, timezone
+import os
+import pytz
 import Schedule as s
 # Create a CHS Schedule Object
 
@@ -26,9 +27,7 @@ def isDayOneOrTwo():
     print("Today is a " + day)
 
 def get_daily_summaries():
-    url = "https://www.hsd.k12.or.us/site/handlers/icalfeed.ashx?MIID=37"
-    res = requests.get(url)
-    calendar = icalendar.Calendar.from_ical(res.text)
+    calendar = get_calendar()
     output = []
     today = date.today()
     c_month = today.month
@@ -45,46 +44,204 @@ def get_daily_summaries():
         
     return output
 
+def get_calendar():
+    url = "https://www.hsd.k12.or.us/fs/calendar-manager/events.ics?calendar_ids=6"
+    res = requests.get(url)
+    calendar = icalendar.Calendar.from_ical(res.text)
+    return calendar
+
 def clean_summary(text):
-    output = text.decode('utf-8')
-    return output
+    if isinstance(text, bytes):
+        return text.decode('utf-8')
+    return text
 
 def is_weekday(current_day):
     """ receives a current_day object -> bool """
     return date.weekday(current_day) < 5
 
-def get_current_day():
-    url = "https://www.hsd.k12.or.us/site/handlers/icalfeed.ashx?MIID=37"
-    res = requests.get(url)
-    calendar = icalendar.Calendar.from_ical(res.text)
+def get_current_day(calendar: Calendar) -> str:
     output = []
+
+    ##############################
+    # TODO: fix the A B conundrum
+    ##############################
     today = date.today()
+    current_day = today.day
+    current_month = today.month
+    current_year = today.year
+    a_or_b_day = {
+        "a_day": {
+            "start": (),
+            "stop": ()
+        },
+        "b_day": {
+            "start": (),
+            "stop": ()
+        },
+    }
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
-        # input(summary)
-        e_month = event['DTSTART'].dt.month
-        e_day = event['DTSTART'].dt.day
-        c_month = today.month
-        c_day = today.day
-        if e_month == c_month and e_day == c_day:
-            if 'DAY' in summary:
-                return summary
+        start_date = event.DTSTART
+        start_year = start_date.year
+        s_month = start_date.month
+        s_day = start_date.day
+        if start_year != current_year and current_month != 12:
+            continue
+        if "a day" in summary.lower() or "b day" in summary.lower():
+            rules = event.rrules           
+            if rules:
+                rule = rules[0]
+                until = rule.get('UNTIL')[0]
+                u_month = until.month
+                u_day = until.day
+                
+                if current_month <= u_month:
+                    total_days = today - start_date
+                    in_range = is_in_range(current_day, current_month, s_month, s_day, u_month, u_day)
+                    if in_range:
+                        if total_days.days % 2 == 0:
+                            day = get_which_day(summary)
+                        else:
+                            if "a day" == summary.lower():
+                                return "A B day"
+                            else:
+                                return "An A day"
+            elif current_day == s_day and current_month == s_month:
+                day = get_which_day(summary)
+                return day
+
+def is_in_range(current_day, current_month, s_month, s_day, u_month, u_day):
+    in_range = current_month == s_month and current_day >= s_day
+    in_range = in_range or current_month == u_month and current_day <= u_day
+    return in_range
+
+def get_which_day(summary):
+    day = ""
+    if "a day" == summary.lower():
+        day = "an A Day"
+    if "b day" == summary.lower():
+        day = "a B Day"
+    return day
+
+        # # input(summary)
+        # e_month = event['DTSTART'].dt.month
+        # e_day = event['DTSTART'].dt.day
+        # c_month = today.month
+        # c_day = today.day
+        # if e_month == c_month and e_day == c_day:
+        #     if 'DAY' in summary:
+        #         return summary
     
     # if we're still in the loop, there must not be a DAY 1 or DAY 2
     # it must be the weekend
-    return "No School Day"
+    # return "No School Day"
+
+
+def get_current_calendar(now: datetime) -> icalendar:
+    """returns a calendar for just the current school year"""
+    school_year = get_school_year(now)
+
+    # Try and open current_calendar file (if it exists)
+    try:
+        with open('current_calendar.ics', 'r', encoding='utf-8') as cal:
+            calendar_text = cal.read()
+
+            # convert the text to a calendar
+            current_cal = Calendar.from_ical(calendar_text)
+            
+            # Check to make sure the calendar is current
+            last_modified = get_last_modified(current_cal)
+            modified_month = last_modified[5:7]
+            modified_month = int(modified_month)
+            current_month = now.strftime("%m")
+            current_month = int(current_month)
+
+            # if the current month is past the modified month - get a new calendar
+            if current_month > modified_month:
+                # throwing the error forces us to make a new calendar
+                # this will only happen once a month
+                raise FileNotFoundError
+            
+            # Success! return the calendar
+            return current_cal
+
+    except FileNotFoundError:
+        # create & config our adjusted calendar
+        adjusted_cal = Calendar()
+        adjusted_cal.add('prodid', '-//Current_year Calendar//')
+        adjusted_cal.add('prodid', '-//Current_year Calendar//')
+        adjusted_cal.add('version', '0.1')
+        adjusted_cal.add('x-school-year', school_year)
+
+        # pull the online calendar
+        current_cal = get_calendar()
+        
+        # clean calendar of old years
+        start_year, end_year = [int(x) for x in school_year.split("-")]
+
+        # create a new calendar
+        for event in current_cal.walk('vevent'):
+            # get year and month
+            # add only events that are within this school year (August to July)
+            e_year = event['DTSTART'].dt.year
+            e_month = event['DTSTART'].dt.month
+            if e_year < start_year or e_year > end_year:
+                continue
+            elif e_year == start_year and e_month < 8:
+                continue
+            elif e_year == end_year and e_month > 7:
+                continue
+            adjusted_cal.add_component(event)
+        
+        # save calendar
+        adjusted_events = adjusted_cal.events
+        try:
+            with open('current_calendar.ics', 'wb') as cal:
+                cal.write(adjusted_cal.to_ical())
+        except Exception as ex:
+            print(ex)
+        return adjusted_cal
+
+def get_last_modified(calendar: Calendar) -> str:
+    """get the last time the calendar was modified or set it and return it"""
+    last_modified = calendar.LAST_MODIFIED
+    if not last_modified:
+        # get now in UTC time
+        current_date = datetime.now(pytz.UTC)
+        calendar.LAST_MODIFIED = current_date
+        current_date = current_date.isoformat()
+        last_modified = current_date
+    return last_modified
+
+
+def get_school_year(now):
+    cur_month = now.month
+    cur_year = now.year
+    if cur_month < 8:
+        school_year = f"{cur_year-1}-{cur_year}"
+    else:
+        school_year = f"{cur_year}-{cur_year+1}"
+    return school_year
+
 
 # Main scope
 if __name__ == "__main__":
     
     schedule = s.Schedule()
+    
     # Get the current time
     now = datetime.now()
-    day_one_or_two = get_current_day()
+    current_year_cal = get_current_calendar(now)
+
+    ###################################################################
+    # TODO: Modify get_current_day by passing it a current calendar
+    ###################################################################
+
+    day_one_or_two = get_current_day(current_year_cal)
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
     c_class = schedule.get_class(period)
-    print("Today is a {}".format(day_one_or_two))
+    print("Today is {}".format(day_one_or_two))
     print("The current class is {}".format(c_class))
     input("Press enter to get today's announcements.")
     announcements = get_daily_summaries()
