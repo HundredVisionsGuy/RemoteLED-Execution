@@ -15,7 +15,7 @@ def days_until(is_school_day) -> str:
         month = today.month
         day = today.day
         current_day = datetime(year, month, day)
-        if "Summer Vacation" in event or "Focus Program" in event:
+        if "Summer Vacation" in event or "Spring Break" in event or "Focus Program" in event:
             date_format = "%Y-%m-%d %H:%M"
             today = datetime.now()
             hour = today.hour
@@ -29,15 +29,36 @@ def days_until(is_school_day) -> str:
         if "Summer Vacation" in event:
             full_seconds = days_to_go.seconds
             hours, minutes = get_hours_minutes(full_seconds)
+            if days_left == 1:
+                msg += f"       {days_left} day, "
+            elif days_left > 1:
+                msg += f"       {days_left} days, "
+            elif days_left == 0 and full_seconds > 0:
+                msg += "       "
             if days_left >= 0:
-                msg += f"       {days_left} days, {hours} hours, and {minutes} minutes left until "
+                msg += f"{hours} hours, and {minutes} minutes left until "
                 msg += "Summer Vacation.    "
         elif "Focus Program Night" in event:
             full_seconds = days_to_go.seconds
+            print(f"Full_seconds = {full_seconds}")
             hours, minutes = get_hours_minutes(full_seconds)
-            if days_left > 0 and hours > 0 and minutes > 0:
-                msg += f"	    {days_left} days, {hours} hours, and {minutes} minutes left until"
-                msg += " Focus Program Night.    "
+            if full_seconds > 0:
+                if days_left == 1:
+                    msg += f"       {days_left} day, "
+                elif days_left > 1:
+                    msg += f"       {days_left} days, "
+                else:
+                    msg += f" {hours} hours, and {minutes} minutes left until"
+                msg += "until Focus Program Night.    "
+        elif "Spring Break" in event:
+            full_seconds = days_to_go.seconds
+            hours, minutes = get_hours_minutes(full_seconds)
+            if days_left == 1:
+                msg += f"       {days_left} day, {hours} hours, and {minutes} minutes left until "
+                msg += "Spring Break"
+            else:
+                msg += f"       {days_left} days, {hours} hours, and {minutes} minutes left until "
+                msg += "Spring Break"
         elif days_left == 1:
             msg += f"       {days_left} day left until {event}!"
         elif days_left > 1:
@@ -54,20 +75,18 @@ def get_hours_minutes(seconds):
 
 
 TARGET_DATES = [
-    {"event": "Winter Break begins",
-    "date": "2024-12-21"},
-    {"event": "the end of First Semester",
-    "date": "2025-01-31"},
+    {"event": "the end of Third Quarter",
+    "date": "2026-04-10"},
     {"event": "Oregon Game Project Challenge",
-    "date": "2025-05-10"},
+    "date": "2026-05-02"},
     {"event": "Focus Program Night",
-    "date": "2025-05-28 18:00"},
-    {"event": "Class of '25 Graduation",
-    "date": "2025-06-04"},
+    "date": "2026-05-27 18:00"},
+    {"event": "Class of '26 Graduation",
+    "date": "2026-06-04"},
     {"event": "Summer Vacation begins.",
-    "date": "2025-06-12 12:25"},
+    "date": "2026-06-11 12:30"},
     {"event": "School comes along just to end it",
-     "date":  "2025-09-04"}
+     "date":  "2026-09-02"}
 ]
 
 if __name__ == "__main__":

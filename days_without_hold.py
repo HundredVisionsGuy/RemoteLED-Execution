@@ -27,7 +27,7 @@ class RunText(SampleBase):
     def run(self):
         offscreen_canvas = self.matrix.CreateFrameCanvas()
         font = graphics.Font()
-        font.LoadFont("../../../../fonts/helvR12.bdf")
+        font.LoadFont("../../../fonts/helvR12.bdf")
         textColor = graphics.Color(0, 128, 255)
         pos = offscreen_canvas.width
         without_hold = int(self.args.text)
@@ -52,13 +52,15 @@ class RunText(SampleBase):
                 without_hold -= 1
         if without_hold == -1:
             my_text = "  Days without a hold: 0.  "
+        elif without_hold == 1:
+            my_text = "  One day without a hold. We can do this.    "
         else:
             my_text = f"  Days without a hold: {without_hold}.  "
         if school_day:
             if school_day == "A DAY":
                 day = "an A"
             else:
-                day = "a B"
+                day = "gonna be a great"
             my_text += f"  Today is {day} day.  "
             
             current_hour = start_date.hour
@@ -183,7 +185,7 @@ def is_school_day() -> str:
                         is_school_day = summary.upper()
                         return is_school_day
     except Exception as ex:
-        return f"Error {ex}"
+        return f"Error (from line 62) {ex}"
     
     return is_school_day
 
@@ -202,7 +204,7 @@ def get_board_output(without_hold: int, schoolday: str) -> str:
         if schoolday == "A DAY":
             day = "an A"
         else:
-            day = "a B"
+            day = "gonna be a great"
             schoolday = False
         message = f"  Today is {day} day.    "
     else:
