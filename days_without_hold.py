@@ -270,15 +270,18 @@ def get_board_output(without_hold: int, schoolday: str) -> str:
     Returns:
         message: text displaying the day and # of days without a hold
     """
+    # Display current time
+    message = f"Current Time: {datetime.now().strftime('%I:%M %p')}.  "
     if schoolday:
         if schoolday == "A DAY":
             day = "an A"
         else:
             day = "a B"
             schoolday = False
-        message = f"  Today is {day} day.    "
+        message += f"  Today is {day} day.    "
     else:
-        message = "  There is no school today."
+        message += "  There is no school today."
+    
     if without_hold == -1:
         message += f"  Days without a hold: 0."
     else:
