@@ -1,10 +1,7 @@
 from datetime import date
 from datetime import datetime
-from datetime import timedelta
 
-
-def days_until(is_school_day) -> str:
-    from days_until_dates import TARGET_DATES
+def days_until() -> str:
     msg = ""
     
     for target in TARGET_DATES:
@@ -25,6 +22,8 @@ def days_until(is_school_day) -> str:
             date_format = "%Y-%m-%d"
         target_day = datetime.strptime(target_date, date_format)
         days_to_go = target_day - current_day
+        if days_to_go.days < 0:
+            continue
         days_left = days_to_go.days
         if "Summer Vacation" in event:
             full_seconds = days_to_go.seconds
@@ -36,7 +35,7 @@ def days_until(is_school_day) -> str:
             full_seconds = days_to_go.seconds
             hours, minutes = get_hours_minutes(full_seconds)
             if days_left > 0 and hours > 0 and minutes > 0:
-                msg += f"	    {days_left} days, {hours} hours, and {minutes} minutes left until"
+                msg += f"    {days_left} days, {hours} hours, and {minutes} minutes left until"
                 msg += " Focus Program Night.    "
         elif "Spring Break" in event:
             full_seconds = days_to_go.seconds
@@ -65,6 +64,8 @@ TARGET_DATES = [
     "date": "2026-04-10"},
     {"event": "Oregon Game Project Challenge",
     "date": "2026-05-02"},
+    {"event": "Jagapalooza",
+    "date": "2026-05-22"},
     {"event": "Focus Program Night",
     "date": "2026-05-27 18:00"},
     {"event": "Class of '26 Graduation",

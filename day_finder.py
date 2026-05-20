@@ -69,16 +69,7 @@ def get_current_day(calendar: Calendar) -> str:
     current_day = today.day
     current_month = today.month
     current_year = today.year
-    a_or_b_day = {
-        "a_day": {
-            "start": (),
-            "stop": ()
-        },
-        "b_day": {
-            "start": (),
-            "stop": ()
-        },
-    }
+
     for event in calendar.walk('vevent'):
         summary = event.get('summary')
         start_date = event.DTSTART
@@ -122,19 +113,6 @@ def get_which_day(summary):
     if "b day" == summary.lower():
         day = "a B Day"
     return day
-
-        # # input(summary)
-        # e_month = event['DTSTART'].dt.month
-        # e_day = event['DTSTART'].dt.day
-        # c_month = today.month
-        # c_day = today.day
-        # if e_month == c_month and e_day == c_day:
-        #     if 'DAY' in summary:
-        #         return summary
-    
-    # if we're still in the loop, there must not be a DAY 1 or DAY 2
-    # it must be the weekend
-    # return "No School Day"
 
 
 def get_current_calendar(now: datetime) -> icalendar:
