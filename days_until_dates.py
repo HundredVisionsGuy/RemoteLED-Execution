@@ -12,6 +12,9 @@ def days_until() -> str:
         month = today.month
         day = today.day
         current_day = datetime(year, month, day)
+        target_day = datetime.strptime(target_date, date_format)
+        days_to_go = target_day - current_day
+        
         if "Summer Vacation" in event or "Spring Break" in event or "Focus Program" in event:
             date_format = "%Y-%m-%d %H:%M"
             today = datetime.now()
@@ -20,8 +23,8 @@ def days_until() -> str:
             current_day = datetime(year, month, day, hour, minute)
         else:
             date_format = "%Y-%m-%d"
-        target_day = datetime.strptime(target_date, date_format)
-        days_to_go = target_day - current_day
+
+       
         if days_to_go.days < 0:
             continue
         days_left = days_to_go.days
@@ -36,7 +39,7 @@ def days_until() -> str:
             hours, minutes = get_hours_minutes(full_seconds)
             if days_left > 0 and hours > 0 and minutes > 0:
                 msg += f"    {days_left} days, {hours} hours, and {minutes} minutes left until"
-                msg += " Focus Program Night.    "
+                msg += " College Career Pathways Night.    "
         elif "Spring Break" in event:
             full_seconds = days_to_go.seconds
             hours, minutes = get_hours_minutes(full_seconds)
@@ -58,12 +61,6 @@ def get_hours_minutes(seconds):
 
 
 TARGET_DATES = [
-    {"event": "Spring Break Begins",
-    "date": "2026-03-20 15:30"},
-    {"event": "the end of Third Semester",
-    "date": "2026-04-10"},
-    {"event": "Oregon Game Project Challenge",
-    "date": "2026-05-02"},
     {"event": "Jagapalooza",
     "date": "2026-05-22"},
     {"event": "Focus Program Night",
