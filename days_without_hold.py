@@ -283,7 +283,7 @@ def get_board_output(without_hold: int, schoolday: str) -> str:
         message += "  There is no school today."
     
     if without_hold == -1:
-        message += f"  Days without a hold: 0."
+        message += "  Days without a hold: 0."
     else:
         message += f"  Days without a hold: {without_hold}.  "
     
