@@ -12,8 +12,6 @@ def days_until() -> str:
         month = today.month
         day = today.day
         current_day = datetime(year, month, day)
-        target_day = datetime.strptime(target_date, date_format)
-        days_to_go = target_day - current_day
         
         if "Summer Vacation" in event or "Spring Break" in event or "Focus Program" in event:
             date_format = "%Y-%m-%d %H:%M"
@@ -24,6 +22,8 @@ def days_until() -> str:
         else:
             date_format = "%Y-%m-%d"
 
+        target_day = datetime.strptime(target_date, date_format)
+        days_to_go = target_day - current_day
        
         if days_to_go.days < 0:
             continue

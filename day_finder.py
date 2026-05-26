@@ -92,6 +92,7 @@ def get_current_day(calendar: Calendar) -> str:
                     if in_range:
                         if total_days.days % 2 == 0:
                             day = get_which_day(summary)
+                            return day
                         else:
                             if "a day" == summary.lower():
                                 return "A B day"

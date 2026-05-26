@@ -12,7 +12,7 @@ import day_finder
 import requests as re
 from icalendar import Calendar
 from pytz import timezone
-from days_until_dates import TARGET_DATES, get_hours_minutes, days_until
+from days_until_dates import TARGET_DATES, days_until
 
 
 def is_weekday(day):
@@ -163,7 +163,7 @@ def is_school_day() -> str:
             or empty string if it isn't"""
     is_school_day = ""
     # get school calendar
-    TZ = timezone("US/Pacific")
+    # TZ = timezone("America/Los_Angeles")
     date = datetime.now() + timedelta(days=0)
     datefor = "%s" % date.strftime("%Y-%m-%d")
     cur_year, cur_month, cur_day = datefor.split("-")
