@@ -3,6 +3,25 @@ import day_finder
 import datetime
 from datetime import date
 
+def test_get_current_day_from_calendar(monkeypatch):
+  class FixedDate(date):
+    @classmethod
+    def today(cls):
+      return cls(2026, 9, 8)
+
+  monkeypatch.setattr(day_finder, "date", FixedDate)
+  assert day_finder.get_current_day() == "B Day"
+
+def test_get_current_day_raises_when_calendar_date_is_missing(monkeypatch):
+  class FixedDate(date):
+    @classmethod
+    def today(cls):
+      return cls(2026, 9, 3)
+
+  monkeypatch.setattr(day_finder, "date", FixedDate)
+  with pytest.raises(ValueError, match="No calendar entry found for 2026-09-03"):
+    day_finder.get_current_day()
+
 def test_clean_summary_one():
   text = bytes('fred', 'utf-8')
   results = day_finder.clean_summary(text)

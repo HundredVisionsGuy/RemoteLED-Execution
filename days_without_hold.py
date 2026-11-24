@@ -20,11 +20,9 @@ def is_weekday(day):
 
 
 def get_school_day_from_day_finder() -> str:
-    """Get A/B day from day_finder by building current_calendar first."""
+    """Get A/B day from the current day-finder calendar."""
     try:
-        now = datetime.now()
-        current_year_cal = day_finder.get_current_calendar(now)
-        school_day = day_finder.get_current_day(current_year_cal)
+        school_day = day_finder.get_current_day()
         if not school_day:
             return ""
 

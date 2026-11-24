@@ -8,6 +8,8 @@ import icalendar
 from icalendar import Calendar, Event
 from datetime import date, datetime, timezone
 import os
+import json
+from pathlib import Path
 import pytz
 import Schedule as s
 # Create a CHS Schedule Object
@@ -34,6 +36,9 @@ def get_daily_summaries():
     c_day = today.day
     print("Month = {}\tDay = {}".format(c_month, c_day))
     for event in calendar.walk('vevent'):
+        e_year = event['DTSTART'].dt.year
+        if e_year != today.year:
+            continue
         e_month = event['DTSTART'].dt.month
         e_day = event['DTSTART'].dt.day
         if e_month == c_month and e_day == c_day:
@@ -59,62 +64,29 @@ def is_weekday(current_day):
     """ receives a current_day object -> bool """
     return date.weekday(current_day) < 5
 
-def get_current_day(calendar: Calendar) -> str:
-    output = []
-
-    ##############################
-    # TODO: fix the A B conundrum
-    ##############################
+def get_current_day() -> str:
     today = date.today()
-    current_day = today.day
-    current_month = today.month
-    current_year = today.year
+    calendar_path = Path(__file__).with_name("century-high-cal.js")
+    calendar_source = calendar_path.read_text(encoding="utf-8").strip()
+    export_prefix = "export default"
+    if not calendar_source.startswith(export_prefix):
+        raise ValueError(f"{calendar_path.name} must start with '{export_prefix}'")
 
-    for event in calendar.walk('vevent'):
-        summary = event.get('summary')
-        start_date = event.DTSTART
-        start_year = start_date.year
-        s_month = start_date.month
-        s_day = start_date.day
-        if start_year != current_year and current_month != 12:
-            continue
-        if "a day" in summary.lower() or "b day" in summary.lower():
-            rules = event.rrules           
-            if rules:
-                rule = rules[0]
-                until = rule.get('UNTIL')[0]
-                u_month = until.month
-                u_day = until.day
-                
-                if current_month <= u_month:
-                    total_days = today - start_date
-                    in_range = is_in_range(current_day, current_month, s_month, s_day, u_month, u_day)
-                    if in_range:
-                        if total_days.days % 2 == 0:
-                            day = get_which_day(summary)
-                            return day
-                        else:
-                            if "a day" == summary.lower():
-                                return "A B day"
-                            else:
-                                return "An A day"
-            elif current_day == s_day and current_month == s_month:
-                day = get_which_day(summary)
-                return day
+    calendar_json = calendar_source[len(export_prefix):].strip()
+    if calendar_json.endswith(";"):
+        calendar_json = calendar_json[:-1].rstrip()
+    calendar_entries = json.loads(calendar_json)
+    day_types = {entry["day"]: entry["day_type"] for entry in calendar_entries}
+
+    current_date = today.isoformat()
+    if current_date not in day_types:
+        raise ValueError(f"No calendar entry found for {current_date}")
+    return day_types[current_date]
 
 def is_in_range(current_day, current_month, s_month, s_day, u_month, u_day):
     in_range = current_month == s_month and current_day >= s_day
     in_range = in_range or current_month == u_month and current_day <= u_day
     return in_range
-
-def get_which_day(summary):
-    day = ""
-    if "a day" == summary.lower():
-        day = "an A Day"
-    if "b day" == summary.lower():
-        day = "a B Day"
-    return day
-
 
 def get_current_calendar(now: datetime) -> icalendar:
     """returns a calendar for just the current school year"""
@@ -210,13 +182,8 @@ if __name__ == "__main__":
     
     # Get the current time
     now = datetime.now()
-    current_year_cal = get_current_calendar(now)
-
-    ###################################################################
-    # TODO: Modify get_current_day by passing it a current calendar
-    ###################################################################
-
-    day_one_or_two = get_current_day(current_year_cal)
+    day_one_or_two = get_current_day()
+    summaries = get_daily_summaries()
     day_of_week = schedule.get_today()
     period = schedule.get_current_period(day_of_week, now, day_one_or_two)
     c_class = schedule.get_class(period)
